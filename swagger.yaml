@@ -14,6 +14,28 @@ tags:
 
 paths:
     /tasks:
+        get:
+            tags: [ tasks ]
+            summary: Récupérer l'ensemble des tâches
+            operationId: getTasks
+            parameters:
+                -   name: todo-only
+                    in: query
+                    description: Indique s'il faut seulement récupérer les tâches à réaliser
+                    required: false
+                    schema:
+                        type: boolean
+            responses:
+                '200':
+                    description: Liste des tâches récupérée avec succès
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/Task'
+                '204':
+                    description: Aucune tâche trouvée
         post:
             tags: [ tasks ]
             summary: Créer une tâche
@@ -61,6 +83,33 @@ paths:
                                 $ref: '#/components/schemas/Task'
                 '404':
                     description: Tâche non trouvée
+        put:
+            tags: [ tasks ]
+            summary: Modifier une tâche
+            description: Modifie une tâche à partir d'un JSON
+            operationId: updateTask
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Task'
+            responses:
+                '204':
+                    description: Tâche modifiée avec succès
+                '404':
+                    description: Tâche non trouvée
+        delete:
+            tags: [ tasks ]
+            summary: Supprimer une tâche
+            description: Supprime une tâche par ID
+            operationId: deleteTask
+            responses:
+                '204':
+                    description: Tâche supprimée avec succès
+                '404':
+                    description: Tâche non trouvée
+
 components:
     schemas:
         Task:

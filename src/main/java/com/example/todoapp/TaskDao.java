@@ -1,5 +1,6 @@
 package com.example.todoapp;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,5 +35,22 @@ public class TaskDao {
      */
     public Optional<Task> findById(int id) {
         return Optional.ofNullable(storage.get(id));
+    }
+
+    /**
+     * Retrieve all tasks.
+     * @return collection of tasks.
+     */
+    public Collection<Task> findAll() {
+        return storage.values();
+    }
+
+    /**
+     * Delete task by id.
+     * @param id identifier of the task.
+     * @return true if deleted, false if not found.
+     */
+    public boolean delete(int id) {
+        return storage.remove(id) != null;
     }
 }

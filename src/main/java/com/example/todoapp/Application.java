@@ -8,9 +8,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.nonNull;
@@ -37,6 +40,26 @@ public class Application {
     private static void handleTasks(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
+        String query = exchange.getRequestURI().getQuery();
+
+        //region Manage GET /tasks (with optional todo-only filter)
+        if ("GET".equals(method) && "/tasks".equals(path)) {
+            Collection<Task> tasks = dao.findAll();
+            
+            if (nonNull(query) && query.contains("todo-only=true")) {
+                tasks = tasks.stream()
+                        .filter(t -> !t.done())
+                        .collect(Collectors.toList());
+            }
+
+            if (tasks.isEmpty()) {
+                sendResponse(exchange, 204, null);
+            } else {
+                sendResponse(exchange, 200, JsonUtils.serialize(tasks));
+            }
+            return;
+        }
+        //endregion
 
         //region Manage POST /tasks
         if ("POST".equals(method) && "/tasks".equals(path)) {
@@ -49,18 +72,47 @@ public class Application {
         }
         //endregion
 
-        //region Manage GET /tasks/{id}
+        //region Endpoints with {id}
         Matcher m = ID_PATH.matcher(path);
-        if ("GET".equals(method) && m.matches()) {
+        if (m.matches()) {
             int id = Integer.parseInt(m.group(1));
-            Optional<Task> task = dao.findById(id);
 
-            if (task.isPresent()) {
-                sendResponse(exchange, 200, JsonUtils.serialize(task.get()));
-            } else {
-                sendResponse(exchange, 404, null);
+            // GET /tasks/{id}
+            if ("GET".equals(method)) {
+                Optional<Task> task = dao.findById(id);
+                if (task.isPresent()) {
+                    sendResponse(exchange, 200, JsonUtils.serialize(task.get()));
+                } else {
+                    sendResponse(exchange, 404, null);
+                }
+                return;
             }
-            return;
+
+            // DELETE /tasks/{id}
+            if ("DELETE".equals(method)) {
+                boolean deleted = dao.delete(id);
+                if (deleted) {
+                    sendResponse(exchange, 204, null);
+                } else {
+                    sendResponse(exchange, 404, null);
+                }
+                return;
+            }
+
+            // PUT /tasks/{id}
+            if ("PUT".equals(method)) {
+                Optional<Task> existing = dao.findById(id);
+                if (existing.isPresent()) {
+                    Task input = JsonUtils.deserialize(new String(exchange.getRequestBody().readAllBytes(), UTF_8), Task.class);
+                    // Ensure ID from path is used
+                    Task updated = new Task(id, input.title(), input.description(), input.done());
+                    dao.save(updated);
+                    sendResponse(exchange, 204, null);
+                } else {
+                    sendResponse(exchange, 404, null);
+                }
+                return;
+            }
         }
         //endregion
 
@@ -77,7 +129,7 @@ public class Application {
                 os.write(bytes);
             }
         } else {
-            exchange.sendResponseHeaders(status, 0);
+            exchange.sendResponseHeaders(status, -1); // -1 for no body
             exchange.close();
         }
     }
