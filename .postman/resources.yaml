@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: 8c176cee-218f-4045-8359-acc3b25a117a
+
+localResources:
+  collections:
+    - ..\todo-app-collection.json
+  specs:
+    - ..\swagger.yaml
