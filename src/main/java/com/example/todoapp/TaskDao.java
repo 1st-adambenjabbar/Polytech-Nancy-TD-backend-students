@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import com.example.todoapp.model.Task;
+
 /**
  * Data Access Object for {@link Task} model.
  */
