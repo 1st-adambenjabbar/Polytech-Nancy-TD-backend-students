@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
     title: TODO API
-    version: 1.0.0
+    version: 2.0.0
     description: >
         API de gestion d'une TODO List.
 servers:
@@ -33,9 +33,11 @@ paths:
                             schema:
                                 type: array
                                 items:
-                                    $ref: '#/components/schemas/Task'
+                                    $ref: '#/components/schemas/TaskResponse'
                 '204':
                     description: Aucune tâche trouvée
+                '500':
+                    description: Erreur interne du serveur
         post:
             tags: [ tasks ]
             summary: Créer une tâche
@@ -45,7 +47,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/Task'
+                            $ref: '#/components/schemas/TaskCreate'
             responses:
                 '201':
                     description: Tâche créée avec succès
@@ -58,7 +60,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Task'
+                                $ref: '#/components/schemas/TaskResponse'
+                '400':
+                    description: Paramètre invalide
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ValidationError'
+                '500':
+                    description: Erreur interne du serveur
 
     /tasks/{id}:
         parameters:
@@ -80,9 +92,11 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Task'
+                                $ref: '#/components/schemas/TaskResponse'
                 '404':
                     description: Tâche non trouvée
+                '500':
+                    description: Erreur interne du serveur
         put:
             tags: [ tasks ]
             summary: Modifier une tâche
@@ -93,12 +107,22 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/Task'
+                            $ref: '#/components/schemas/TaskUpdate'
             responses:
                 '204':
                     description: Tâche modifiée avec succès
+                '400':
+                    description: Paramètre invalide
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ValidationError'
                 '404':
                     description: Tâche non trouvée
+                '500':
+                    description: Erreur interne du serveur
         delete:
             tags: [ tasks ]
             summary: Supprimer une tâche
@@ -109,19 +133,60 @@ paths:
                     description: Tâche supprimée avec succès
                 '404':
                     description: Tâche non trouvée
+                '500':
+                    description: Erreur interne du serveur
 
 components:
     schemas:
-        Task:
+        TaskCreate:
             type: object
-            description: Représentation d'une tâche
+            description: Corps de la requête pour créer une tâche. L'id est auto-généré et done est initialisé à false.
+            required:
+                - title
+            properties:
+                title:
+                    type: string
+                    maxLength: 50
+                    example: Acheter du lait
+                description:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: 2L demi-écrémé
+
+        TaskUpdate:
+            type: object
+            description: Corps de la requête pour modifier une tâche.
+            required:
+                - title
+                - done
+            properties:
+                title:
+                    type: string
+                    maxLength: 50
+                    example: Acheter du lait
+                description:
+                    type: string
+                    nullable: true
+                    maxLength: 255
+                    example: 2L demi-écrémé
+                done:
+                    type: boolean
+                    example: false
+
+        TaskResponse:
+            type: object
+            description: Représentation d'une tâche retournée par l'API.
+            required:
+                - id
+                - title
+                - done
             properties:
                 id:
                     type: integer
                     example: 1
                 title:
                     type: string
-                    nullable: true
                     example: Acheter du lait
                 description:
                     type: string
@@ -129,8 +194,18 @@ components:
                     example: 2L demi-écrémé
                 done:
                     type: boolean
-                    nullable: true
                     example: false
+
+        ValidationError:
+            type: object
+            description: Détail d'une erreur de validation sur un champ du corps de la requête.
             required:
-                - id
-                - title
+                - field
+                - message
+            properties:
+                field:
+                    type: string
+                    example: title
+                message:
+                    type: string
+                    example: Le titre ne doit pas dépasser 50 caractères.
