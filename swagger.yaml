@@ -33,11 +33,17 @@ paths:
                             schema:
                                 type: array
                                 items:
+<<<<<<< HEAD
                                     $ref: '#/components/schemas/TaskResponse'
                 '204':
                     description: Aucune tâche trouvée
                 '500':
                     description: Erreur interne du serveur
+=======
+                                    $ref: '#/components/schemas/Task'
+                '204':
+                    description: Aucune tâche trouvée
+>>>>>>> 2fd5f0253653876e2304179b6d7750052ff5a314
         post:
             tags: [ tasks ]
             summary: Créer une tâche
@@ -95,8 +101,11 @@ paths:
                                 $ref: '#/components/schemas/TaskResponse'
                 '404':
                     description: Tâche non trouvée
+<<<<<<< HEAD
                 '500':
                     description: Erreur interne du serveur
+=======
+>>>>>>> 2fd5f0253653876e2304179b6d7750052ff5a314
         put:
             tags: [ tasks ]
             summary: Modifier une tâche
@@ -107,6 +116,7 @@ paths:
                 content:
                     application/json:
                         schema:
+<<<<<<< HEAD
                             $ref: '#/components/schemas/TaskUpdate'
             responses:
                 '204':
@@ -123,6 +133,14 @@ paths:
                     description: Tâche non trouvée
                 '500':
                     description: Erreur interne du serveur
+=======
+                            $ref: '#/components/schemas/Task'
+            responses:
+                '204':
+                    description: Tâche modifiée avec succès
+                '404':
+                    description: Tâche non trouvée
+>>>>>>> 2fd5f0253653876e2304179b6d7750052ff5a314
         delete:
             tags: [ tasks ]
             summary: Supprimer une tâche
@@ -133,8 +151,11 @@ paths:
                     description: Tâche supprimée avec succès
                 '404':
                     description: Tâche non trouvée
+<<<<<<< HEAD
                 '500':
                     description: Erreur interne du serveur
+=======
+>>>>>>> 2fd5f0253653876e2304179b6d7750052ff5a314
 
 components:
     schemas:
