@@ -4,6 +4,99 @@ workspace:
 
 localResources:
   collections:
-    - ..\todo-app-collection.json
+    - ../todo-app-collection.json
   specs:
-    - ..\swagger.yaml
+    - ../swagger.yaml
+
+item:
+  - name: Get All Tasks
+    request:
+      method: GET
+      header: []
+      url:
+        raw: http://localhost:8080/tasks
+        protocol: http
+        host:
+          - localhost
+        port: "8080"
+        path:
+          - tasks
+    response: []
+
+  - name: Create Task
+    request:
+      method: POST
+      header:
+        - key: Content-Type
+          value: application/json
+      body:
+        mode: raw
+        raw: |
+          {
+            "title": "Nouvelle tâche",
+            "description": "Description de la tâche"
+          }
+      url:
+        raw: http://localhost:8080/tasks
+        protocol: http
+        host:
+          - localhost
+        port: "8080"
+        path:
+          - tasks
+    response: []
+
+  - name: Get Task By ID
+    request:
+      method: GET
+      header: []
+      url:
+        raw: http://localhost:8080/tasks/1
+        protocol: http
+        host:
+          - localhost
+        port: "8080"
+        path:
+          - tasks
+          - "1"
+    response: []
+
+  - name: Update Task
+    request:
+      method: PUT
+      header:
+        - key: Content-Type
+          value: application/json
+      body:
+        mode: raw
+        raw: |
+          {
+            "title": "Tâche mise à jour",
+            "description": "Nouvelle description",
+            "done": true
+          }
+      url:
+        raw: http://localhost:8080/tasks/1
+        protocol: http
+        host:
+          - localhost
+        port: "8080"
+        path:
+          - tasks
+          - "1"
+    response: []
+
+  - name: Delete Task
+    request:
+      method: DELETE
+      header: []
+      url:
+        raw: http://localhost:8080/tasks/1
+        protocol: http
+        host:
+          - localhost
+        port: "8080"
+        path:
+          - tasks
+          - "1"
+    response: []
